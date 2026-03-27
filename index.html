@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hello World 计算器</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      gap: 14px;
+    }
+    #output {
+      border: 1px solid #ccc;
+      padding: 14px;
+      width: 320px;
+      text-align: center;
+      border-radius: 6px;
+      background: #f9f9f9;
+      font-size: 18px;
+    }
+    input[type="number"] {
+      width: 130px;
+      padding: 8px;
+      font-size: 16px;
+      margin-right: 6px;
+    }
+    button { padding: 8px 16px; font-size: 16px; }
+  </style>
+</head>
+<body>
+
+  <h1>计算 Hello World 展示页</h1>
+  <div id="output">Hello World 🌍</div>
+
+  <div>
+    <input id="a" type="number" value="1" /> +
+    <input id="b" type="number" value="2" />
+    <button id="calc">计算</button>
+  </div>
+
+  <div id="result">结果：-</div>
+
+  <script>
+    const output = document.getElementById("output");
+    const result = document.getElementById("result");
+    const a = document.getElementById("a");
+    const b = document.getElementById("b");
+    const btn = document.getElementById("calc");
+
+    btn.addEventListener("click", () => {
+      const x = Number(a.value);
+      const y = Number(b.value);
+      const sum = x + y;
+      result.textContent = "结果：" + sum;
+      output.textContent = "Hello World - 你刚计算了 " + x + " + " + y + " = " + sum;
+    });
+  </script>
+
+</body>
+</html>
