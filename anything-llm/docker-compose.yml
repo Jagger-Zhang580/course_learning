@@ -1,0 +1,20 @@
+version: "3.8"
+
+services:
+  anything-llm:
+    image: mintplexlabs/anything-llm:latest
+    container_name: anything-llm
+    ports:
+      - "3001:3001"
+    environment:
+      - TZ=Asia/Shanghai
+    volumes:
+      - anything-llm-data:/app/server/storage
+      - anything-llm-embeddings:/app/server/vector-db
+    restart: unless-stopped
+
+volumes:
+  anything-llm-data:
+    driver: local
+  anything-llm-embeddings:
+    driver: local

@@ -1,0 +1,35 @@
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: imgmgr
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: images
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U imgmgr"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build: ./backend
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://imgmgr:secret@db:5432/images
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - local_images:/app/data/images
+    ports: ["8000:8000"]
+
+  web:
+    build: ./frontend
+    ports: ["80:80"]
+    depends_on: [api]
+
+volumes:
+  pgdata:
+  local_images:

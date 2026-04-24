@@ -1,0 +1,1141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI简历筛选工具 - 增强版</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #667eea;
+            --primary-dark: #764ba2;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --danger: #f44336;
+            --info: #2196f3;
+            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .features-badge {
+            display: inline-flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .badge {
+            background: rgba(255,255,255,0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            backdrop-filter: blur(10px);
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+        
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .card-title {
+            font-size: 1.3rem;
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+        }
+        
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .btn {
+            background: var(--bg-gradient);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            width: 100%;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+        }
+        
+        .btn-info {
+            background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+        }
+        
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 12px;
+            background: #e0e0e0;
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-weight: 500;
+        }
+        
+        .tab.active {
+            background: var(--bg-gradient);
+            color: white;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .file-upload-area {
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            background: #f8f9fa;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .file-upload-area:hover,
+        .file-upload-area.dragover {
+            border-color: var(--primary);
+            background: #e8f4fd;
+        }
+        
+        .file-upload-area i {
+            font-size: 48px;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+        
+        .file-list {
+            margin-top: 15px;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+        
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: #f0f0f0;
+            border-radius: 5px;
+            margin-bottom: 5px;
+        }
+        
+        .file-item .remove-btn {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 3px 8px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .results-section {
+            grid-column: 1 / -1;
+        }
+        
+        .result-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .result-title {
+            font-size: 1.2rem;
+            color: #333;
+            font-weight: 600;
+        }
+        
+        .score-badge {
+            background: var(--bg-gradient);
+            color: white;
+            padding: 10px 25px;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        
+        .score-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .score-item {
+            text-align: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            transition: transform 0.3s;
+        }
+        
+        .score-item:hover {
+            transform: translateY(-3px);
+        }
+        
+        .score-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .score-label {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .section-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #333;
+            margin: 20px 0 10px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .keywords-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        
+        .keyword-tag {
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+        }
+        
+        .keyword-tag.matched {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        
+        .keyword-tag.missing {
+            background: #ffebee;
+            color: #c62828;
+        }
+        
+        .keyword-tag.info {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+        
+        .suggestions-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .suggestions-list li {
+            padding: 10px 15px;
+            background: #fff3e0;
+            border-left: 4px solid var(--warning);
+            margin-bottom: 8px;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .ranking-list {
+            margin-top: 20px;
+        }
+        
+        .ranking-item {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+        
+        .ranking-item:hover {
+            background: #e8f4fd;
+            border-color: var(--primary);
+        }
+        
+        .ranking-item.top {
+            background: linear-gradient(135deg, #fff9c4 0%, #fff59d 100%);
+            border-color: #ffc107;
+        }
+        
+        .rank-number {
+            width: 50px;
+            height: 50px;
+            background: var(--bg-gradient);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-right: 20px;
+            flex-shrink: 0;
+        }
+        
+        .rank-number.gold {
+            background: linear-gradient(135deg, #ffd700 0%, #ffb300 100%);
+        }
+        
+        .rank-number.silver {
+            background: linear-gradient(135deg, #c0c0c0 0%, #a0a0a0 100%);
+        }
+        
+        .rank-number.bronze {
+            background: linear-gradient(135deg, #cd7f32 0%, #b87333 100%);
+        }
+        
+        .rank-info {
+            flex: 1;
+        }
+        
+        .rank-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+        }
+        
+        .rank-scores {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .rank-score-item {
+            font-size: 0.85rem;
+            color: #666;
+        }
+        
+        .rank-score-item strong {
+            color: var(--primary);
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+            border-left: 4px solid var(--danger);
+        }
+        
+        .success-message {
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+            border-left: 4px solid var(--success);
+        }
+        
+        .resume-inputs {
+            margin-top: 15px;
+        }
+        
+        .resume-input-group {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            position: relative;
+        }
+        
+        .resume-label {
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #555;
+        }
+        
+        .add-resume-btn {
+            background: var(--success);
+            margin-top: 10px;
+        }
+        
+        .remove-resume-btn {
+            background: var(--danger);
+            padding: 5px 10px;
+            font-size: 12px;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: auto;
+        }
+        
+        .skill-config-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f0f7ff;
+            border-radius: 8px;
+            border: 1px solid #bbdefb;
+        }
+        
+        .skill-config-title {
+            font-weight: 600;
+            color: var(--info);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: var(--bg-gradient);
+            transition: width 0.5s ease;
+        }
+        
+        .details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .details-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .detail-card {
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        
+        .detail-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .feature-info {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .feature-info h4 {
+            color: var(--info);
+            margin-bottom: 10px;
+        }
+        
+        .feature-list {
+            list-style: none;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 8px;
+        }
+        
+        .feature-list li {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .feature-list li::before {
+            content: "✓";
+            color: var(--success);
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>AI简历筛选工具 - 增强版</h1>
+            <p>集成BERT语义分析、技能权重配置、多格式支持、机器学习分类</p>
+            <div class="features-badge">
+                <span class="badge">BERT语义理解</span>
+                <span class="badge">技能权重配置</span>
+                <span class="badge">PDF/Word支持</span>
+                <span class="badge">机器学习分类</span>
+                <span class="badge">质量评估</span>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div class="card">
+                <div class="card-title">
+                    <span>职位描述 & 技能配置</span>
+                </div>
+                
+                <div class="skill-config-section">
+                    <div class="skill-config-title">
+                        <span>技能配置模板</span>
+                    </div>
+                    <select id="skillTemplate">
+                        <option value="">-- 选择职位模板 --</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>职位描述：</label>
+                    <textarea id="jobDescription" rows="12" placeholder="请输入详细的职位要求..."></textarea>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-title">
+                    <span>简历输入</span>
+                </div>
+                
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab('single')">单个简历</button>
+                    <button class="tab" onclick="switchTab('multiple')">多简历文本</button>
+                    <button class="tab" onclick="switchTab('upload')">文件上传</button>
+                </div>
+                
+                <div id="singleTab" class="tab-content active">
+                    <div class="form-group">
+                        <label>简历内容：</label>
+                        <textarea id="singleResume" rows="10" placeholder="请输入完整的简历内容..."></textarea>
+                    </div>
+                    <button class="btn" onclick="analyzeSingle()">分析匹配度</button>
+                </div>
+                
+                <div id="multipleTab" class="tab-content">
+                    <div id="resumeInputs" class="resume-inputs">
+                        <div class="resume-input-group">
+                            <div class="resume-label">简历 1</div>
+                            <textarea class="resume-textarea" rows="6" placeholder="请输入简历内容..."></textarea>
+                        </div>
+                        <div class="resume-input-group">
+                            <div class="resume-label">简历 2</div>
+                            <textarea class="resume-textarea" rows="6" placeholder="请输入简历内容..."></textarea>
+                        </div>
+                    </div>
+                    <button class="btn add-resume-btn" onclick="addResumeInput()">+ 添加简历</button>
+                    <button class="btn" onclick="screenMultiple()" style="margin-top: 10px;">筛选排名</button>
+                </div>
+                
+                <div id="uploadTab" class="tab-content">
+                    <div class="feature-info">
+                        <h4>支持的文件格式</h4>
+                        <ul class="feature-list">
+                            <li>TXT 纯文本</li>
+                            <li>PDF 文档</li>
+                            <li>DOCX Word文档</li>
+                            <li>批量上传</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="file-upload-area" onclick="document.getElementById('fileInput').click()">
+                        <div style="font-size: 48px; color: var(--primary);">📄</div>
+                        <p>点击或拖拽文件到此处</p>
+                        <p style="font-size: 0.85rem; color: #666;">支持 PDF、DOCX、TXT 格式</p>
+                        <input type="file" id="fileInput" multiple accept=".txt,.pdf,.docx,.doc" style="display: none;" onchange="handleFiles(this.files)">
+                    </div>
+                    
+                    <div class="file-list" id="fileList"></div>
+                    
+                    <button class="btn btn-info" onclick="uploadAndScreen()" style="margin-top: 15px;">上传并筛选</button>
+                </div>
+            </div>
+            
+            <div class="results-section">
+                <div class="error-message" id="errorMessage"></div>
+                <div class="success-message" id="successMessage"></div>
+                
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p>正在分析中，请稍候...</p>
+                </div>
+                
+                <div id="singleResult" style="display: none;">
+                    <div class="result-card">
+                        <div class="result-header">
+                            <div class="result-title">匹配度分析结果</div>
+                            <div class="score-badge" id="singleScore">0%</div>
+                        </div>
+                        
+                        <div class="score-grid">
+                            <div class="score-item">
+                                <div class="score-value" id="tfidfScore">0%</div>
+                                <div class="score-label">TF-IDF相似度</div>
+                                <div class="progress-bar"><div class="progress-fill" id="tfidfProgress"></div></div>
+                            </div>
+                            <div class="score-item">
+                                <div class="score-value" id="semanticScore">0%</div>
+                                <div class="score-label">语义相似度</div>
+                                <div class="progress-bar"><div class="progress-fill" id="semanticProgress"></div></div>
+                            </div>
+                            <div class="score-item">
+                                <div class="score-value" id="skillScore">0%</div>
+                                <div class="score-label">技能匹配度</div>
+                                <div class="progress-bar"><div class="progress-fill" id="skillProgress"></div></div>
+                            </div>
+                            <div class="score-item">
+                                <div class="score-value" id="qualityScore">0%</div>
+                                <div class="score-label">简历质量</div>
+                                <div class="progress-bar"><div class="progress-fill" id="qualityProgress"></div></div>
+                            </div>
+                        </div>
+                        
+                        <div class="details-grid">
+                            <div class="detail-card">
+                                <div class="detail-title">匹配的技能</div>
+                                <div class="keywords-list" id="matchedSkills"></div>
+                            </div>
+                            <div class="detail-card">
+                                <div class="detail-title">缺失的技能</div>
+                                <div class="keywords-list" id="missingSkills"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="section-title">改进建议</div>
+                        <ul class="suggestions-list" id="suggestionsList"></ul>
+                    </div>
+                </div>
+                
+                <div id="multipleResults" style="display: none;">
+                    <div class="result-card">
+                        <div class="result-header">
+                            <div class="result-title">简历筛选排名</div>
+                            <div class="score-badge" id="totalCount">共 0 份简历</div>
+                        </div>
+                        
+                        <div class="ranking-list" id="rankingList"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let resumeCount = 2;
+        let uploadedFiles = [];
+        
+        // 页面加载时获取模板列表
+        window.onload = async function() {
+            await loadTemplates();
+            loadExampleData();
+        };
+        
+        async function loadTemplates() {
+            try {
+                const response = await fetch('/api/templates');
+                const data = await response.json();
+                
+                if (data.success) {
+                    const select = document.getElementById('skillTemplate');
+                    data.templates.forEach(template => {
+                        const option = document.createElement('option');
+                        option.value = template.name;
+                        option.textContent = `${template.job_title} (${template.skills.length}项技能)`;
+                        select.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('加载模板失败:', error);
+            }
+        }
+        
+        function loadExampleData() {
+            document.getElementById('jobDescription').value = `职位：Python开发工程师
+职责：
+1. 负责公司核心业务系统的开发和维护
+2. 参与系统架构设计和技术选型
+3. 编写技术文档和单元测试
+
+要求：
+1. 本科及以上学历，计算机相关专业
+2. 3年以上Python开发经验
+3. 熟练掌握Python编程语言
+4. 熟悉Django或Flask框架
+5. 了解MySQL、Redis等数据库
+6. 有良好的代码习惯和文档编写能力
+7. 具备团队协作精神`;
+            
+            document.getElementById('singleResume').value = `张三
+Python开发工程师
+电话：13800138000
+邮箱：zhangsan@example.com
+
+教育背景
+2015-2019  北京大学  计算机科学与技术  本科
+
+工作经验
+2019-至今  某科技公司  Python开发工程师
+- 负责公司核心业务系统的开发和维护
+- 使用Django框架开发Web应用
+- 优化数据库查询性能，提升系统响应速度30%
+- 参与微服务架构设计和实现
+
+专业技能
+- 熟练掌握Python编程语言
+- 熟悉Django、Flask框架
+- 了解MySQL、Redis数据库
+- 熟悉Git版本控制
+- 有Docker容器化部署经验
+- 了解Linux操作系统`;
+        }
+        
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            
+            if (tab === 'single') {
+                document.querySelector('.tab:nth-child(1)').classList.add('active');
+                document.getElementById('singleTab').classList.add('active');
+            } else if (tab === 'multiple') {
+                document.querySelector('.tab:nth-child(2)').classList.add('active');
+                document.getElementById('multipleTab').classList.add('active');
+            } else {
+                document.querySelector('.tab:nth-child(3)').classList.add('active');
+                document.getElementById('uploadTab').classList.add('active');
+            }
+        }
+        
+        function addResumeInput() {
+            resumeCount++;
+            const container = document.getElementById('resumeInputs');
+            const newGroup = document.createElement('div');
+            newGroup.className = 'resume-input-group';
+            newGroup.innerHTML = `
+                <div class="resume-label">简历 ${resumeCount}</div>
+                <textarea class="resume-textarea" rows="6" placeholder="请输入简历内容..."></textarea>
+                <button class="btn remove-resume-btn" onclick="removeResumeInput(this)">删除</button>
+            `;
+            container.appendChild(newGroup);
+        }
+        
+        function removeResumeInput(btn) {
+            btn.parentElement.remove();
+            updateResumeLabels();
+        }
+        
+        function updateResumeLabels() {
+            const groups = document.querySelectorAll('.resume-input-group');
+            groups.forEach((group, index) => {
+                group.querySelector('.resume-label').textContent = `简历 ${index + 1}`;
+            });
+            resumeCount = groups.length;
+        }
+        
+        function handleFiles(files) {
+            uploadedFiles = Array.from(files);
+            updateFileList();
+        }
+        
+        function updateFileList() {
+            const fileList = document.getElementById('fileList');
+            fileList.innerHTML = uploadedFiles.map((file, index) => `
+                <div class="file-item">
+                    <span>${file.name} (${(file.size / 1024).toFixed(1)} KB)</span>
+                    <button class="remove-btn" onclick="removeFile(${index})">移除</button>
+                </div>
+            `).join('');
+        }
+        
+        function removeFile(index) {
+            uploadedFiles.splice(index, 1);
+            updateFileList();
+        }
+        
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            document.getElementById('successMessage').style.display = 'none';
+            setTimeout(() => errorDiv.style.display = 'none', 5000);
+        }
+        
+        function showSuccess(message) {
+            const successDiv = document.getElementById('successMessage');
+            successDiv.textContent = message;
+            successDiv.style.display = 'block';
+            document.getElementById('errorMessage').style.display = 'none';
+            setTimeout(() => successDiv.style.display = 'none', 5000);
+        }
+        
+        function showLoading(show) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+        }
+        
+        function updateProgress(elementId, value) {
+            document.getElementById(elementId).style.width = value + '%';
+        }
+        
+        async function analyzeSingle() {
+            const jobDesc = document.getElementById('jobDescription').value.trim();
+            const resume = document.getElementById('singleResume').value.trim();
+            const template = document.getElementById('skillTemplate').value;
+            
+            if (!jobDesc || !resume) {
+                showError('请填写职位描述和简历内容');
+                return;
+            }
+            
+            showLoading(true);
+            document.getElementById('singleResult').style.display = 'none';
+            document.getElementById('multipleResults').style.display = 'none';
+            
+            try {
+                const response = await fetch('/api/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        job_description: jobDesc,
+                        resume: resume,
+                        skill_template: template
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.error) {
+                    showError(data.error);
+                    return;
+                }
+                
+                displaySingleResult(data.result);
+                showSuccess('分析完成！');
+                
+            } catch (error) {
+                showError('请求失败：' + error.message);
+            } finally {
+                showLoading(false);
+            }
+        }
+        
+        function displaySingleResult(result) {
+            document.getElementById('singleScore').textContent = (result.final_score * 100).toFixed(1) + '%';
+            
+            document.getElementById('tfidfScore').textContent = (result.tfidf_score * 100).toFixed(1) + '%';
+            updateProgress('tfidfProgress', result.tfidf_score * 100);
+            
+            document.getElementById('semanticScore').textContent = (result.semantic_score * 100).toFixed(1) + '%';
+            updateProgress('semanticProgress', result.semantic_score * 100);
+            
+            document.getElementById('skillScore').textContent = (result.skill_score * 100).toFixed(1) + '%';
+            updateProgress('skillProgress', result.skill_score * 100);
+            
+            document.getElementById('qualityScore').textContent = (result.quality_score * 100).toFixed(1) + '%';
+            updateProgress('qualityProgress', result.quality_score * 100);
+            
+            // 匹配的技能
+            const matchedSkillsDiv = document.getElementById('matchedSkills');
+            matchedSkillsDiv.innerHTML = result.matched_skills.map(skill => 
+                `<span class="keyword-tag matched">${skill}</span>`
+            ).join('') || '<span style="color: #999;">无匹配技能</span>';
+            
+            // 缺失的技能
+            const missingSkillsDiv = document.getElementById('missingSkills');
+            missingSkillsDiv.innerHTML = result.missing_skills.map(skill => 
+                `<span class="keyword-tag missing">${skill}</span>`
+            ).join('') || '<span style="color: #999;">无缺失技能</span>';
+            
+            // 建议
+            const suggestionsList = document.getElementById('suggestionsList');
+            suggestionsList.innerHTML = result.suggestions.map(s => `<li>${s}</li>`).join('');
+            
+            document.getElementById('singleResult').style.display = 'block';
+        }
+        
+        async function screenMultiple() {
+            const jobDesc = document.getElementById('jobDescription').value.trim();
+            const textareas = document.querySelectorAll('.resume-textarea');
+            const resumes = Array.from(textareas).map(ta => ta.value.trim()).filter(v => v);
+            const template = document.getElementById('skillTemplate').value;
+            
+            if (!jobDesc) {
+                showError('请填写职位描述');
+                return;
+            }
+            
+            if (resumes.length < 2) {
+                showError('请至少提供2份简历');
+                return;
+            }
+            
+            showLoading(true);
+            document.getElementById('singleResult').style.display = 'none';
+            document.getElementById('multipleResults').style.display = 'none';
+            
+            try {
+                const response = await fetch('/api/screen', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        job_description: jobDesc,
+                        resumes: resumes,
+                        skill_template: template
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.error) {
+                    showError(data.error);
+                    return;
+                }
+                
+                displayMultipleResults(data.results);
+                showSuccess(`成功筛选 ${data.total} 份简历！`);
+                
+            } catch (error) {
+                showError('请求失败：' + error.message);
+            } finally {
+                showLoading(false);
+            }
+        }
+        
+        function displayMultipleResults(results) {
+            document.getElementById('totalCount').textContent = `共 ${results.length} 份简历`;
+            
+            const rankingList = document.getElementById('rankingList');
+            rankingList.innerHTML = results.map((result, index) => {
+                let rankClass = '';
+                let numberClass = '';
+                
+                if (index === 0) {
+                    rankClass = 'top';
+                    numberClass = 'gold';
+                } else if (index === 1) {
+                    numberClass = 'silver';
+                } else if (index === 2) {
+                    numberClass = 'bronze';
+                }
+                
+                return `
+                    <div class="ranking-item ${rankClass}">
+                        <div class="rank-number ${numberClass}">${index + 1}</div>
+                        <div class="rank-info">
+                            <div class="rank-title">${result.resume_id}</div>
+                            <div class="rank-scores">
+                                <span class="rank-score-item">综合: <strong>${(result.final_score * 100).toFixed(1)}%</strong></span>
+                                <span class="rank-score-item">TF-IDF: <strong>${(result.tfidf_score * 100).toFixed(1)}%</strong></span>
+                                <span class="rank-score-item">技能: <strong>${(result.skill_score * 100).toFixed(1)}%</strong></span>
+                                <span class="rank-score-item">质量: <strong>${(result.quality_score * 100).toFixed(1)}%</strong></span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            document.getElementById('multipleResults').style.display = 'block';
+        }
+        
+        async function uploadAndScreen() {
+            const jobDesc = document.getElementById('jobDescription').value.trim();
+            const template = document.getElementById('skillTemplate').value;
+            
+            if (!jobDesc) {
+                showError('请填写职位描述');
+                return;
+            }
+            
+            if (uploadedFiles.length === 0) {
+                showError('请先上传简历文件');
+                return;
+            }
+            
+            showLoading(true);
+            document.getElementById('singleResult').style.display = 'none';
+            document.getElementById('multipleResults').style.display = 'none';
+            
+            try {
+                const formData = new FormData();
+                formData.append('job_description', jobDesc);
+                formData.append('skill_template', template);
+                
+                uploadedFiles.forEach(file => {
+                    formData.append('files', file);
+                });
+                
+                const response = await fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.error) {
+                    showError(data.error);
+                    return;
+                }
+                
+                displayMultipleResults(data.results);
+                showSuccess(`成功处理 ${data.total} 份简历文件！`);
+                
+            } catch (error) {
+                showError('请求失败：' + error.message);
+            } finally {
+                showLoading(false);
+            }
+        }
+        
+        // 拖拽上传支持
+        const uploadArea = document.querySelector('.file-upload-area');
+        
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            handleFiles(e.dataTransfer.files);
+        });
+    </script>
+</body>
+</html>

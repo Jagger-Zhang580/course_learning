@@ -1,0 +1,22 @@
+# AI简历筛选工具 - 依赖列表
+
+# 基础依赖
+jieba>=0.42.1
+flask>=2.3.3
+
+# 文件解析
+PyPDF2>=3.0.0
+python-docx>=0.8.11
+pdfplumber>=0.9.0
+
+# 机器学习
+scikit-learn>=1.3.0
+numpy>=1.24.0
+joblib>=1.3.0
+
+# BERT语义分析（可选，需要GPU支持）
+# transformers>=4.30.0
+# torch>=2.0.0
+
+# 其他工具
+python-multipart>=0.0.6

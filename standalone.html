@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI简历筛选工具 - 纯前端版</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .card-title {
+            font-size: 1.3rem;
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+        }
+        
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            width: 100%;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .results-section {
+            grid-column: 1 / -1;
+        }
+        
+        .result-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .result-title {
+            font-size: 1.2rem;
+            color: #333;
+        }
+        
+        .score-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+        
+        .score-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .score-item {
+            text-align: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        
+        .score-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .score-label {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .keywords-section {
+            margin-top: 20px;
+        }
+        
+        .keywords-title {
+            font-weight: 500;
+            margin-bottom: 10px;
+            color: #555;
+        }
+        
+        .keywords-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        
+        .keyword-tag {
+            background: #e8f4fd;
+            color: #1976d2;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+        }
+        
+        .ranking-list {
+            margin-top: 20px;
+        }
+        
+        .ranking-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            transition: background 0.3s;
+        }
+        
+        .ranking-item:hover {
+            background: #e8f4fd;
+        }
+        
+        .rank-number {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+        }
+        
+        .rank-info {
+            flex: 1;
+        }
+        
+        .rank-title {
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+        
+        .rank-score {
+            color: #667eea;
+            font-weight: bold;
+        }
+        
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 12px;
+            background: #e0e0e0;
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .tab:first-child {
+            border-radius: 8px 0 0 8px;
+        }
+        
+        .tab:last-child {
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .resume-inputs {
+            margin-top: 15px;
+        }
+        
+        .resume-input-group {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .resume-label {
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #555;
+        }
+        
+        .add-resume-btn {
+            background: #4caf50;
+            margin-top: 10px;
+        }
+        
+        .remove-resume-btn {
+            background: #f44336;
+            padding: 5px 10px;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .algorithm-info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
+        
+        .algorithm-info h4 {
+            color: #1976d2;
+            margin-bottom: 10px;
+        }
+        
+        .algorithm-info ul {
+            margin-left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>AI简历筛选工具</h1>
+            <p>使用TF-IDF和余弦相似度算法，智能匹配简历与职位描述</p>
+        </div>
+        
+        <div class="main-content">
+            <div class="card">
+                <div class="card-title">
+                    <span>职位描述</span>
+                </div>
+                <div class="algorithm-info">
+                    <h4>算法说明</h4>
+                    <ul>
+                        <li><strong>TF-IDF</strong>: 词频-逆文档频率，提取关键词</li>
+                        <li><strong>余弦相似度</strong>: 计算文本向量相似度</li>
+                        <li><strong>综合评分</strong>: 相似度(70%) + 关键词匹配(30%)</li>
+                    </ul>
+                </div>
+                <div class="form-group">
+                    <label>请输入职位要求：</label>
+                    <textarea id="jobDescription" rows="10" placeholder="例如：&#10;职位：Python开发工程师&#10;要求：&#10;1. 熟练掌握Python编程语言&#10;2. 熟悉Django或Flask框架&#10;3. 了解MySQL、Redis等数据库"></textarea>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-title">
+                    <span>简历内容</span>
+                </div>
+                
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab('single')">单个简历</button>
+                    <button class="tab" onclick="switchTab('multiple')">多个简历</button>
+                </div>
+                
+                <div id="singleTab" class="tab-content active">
+                    <div class="form-group">
+                        <label>请输入简历内容：</label>
+                        <textarea id="singleResume" rows="10" placeholder="请输入完整的简历内容..."></textarea>
+                    </div>
+                    <button class="btn" onclick="analyzeSingle()">分析匹配度</button>
+                </div>
+                
+                <div id="multipleTab" class="tab-content">
+                    <div id="resumeInputs" class="resume-inputs">
+                        <div class="resume-input-group">
+                            <div class="resume-label">简历 1</div>
+                            <textarea class="resume-textarea" rows="6" placeholder="请输入简历内容..."></textarea>
+                        </div>
+                        <div class="resume-input-group">
+                            <div class="resume-label">简历 2</div>
+                            <textarea class="resume-textarea" rows="6" placeholder="请输入简历内容..."></textarea>
+                        </div>
+                    </div>
+                    <button class="btn add-resume-btn" onclick="addResumeInput()">+ 添加简历</button>
+                    <button class="btn" onclick="screenMultiple()" style="margin-top: 10px;">筛选排名</button>
+                </div>
+            </div>
+            
+            <div class="results-section">
+                <div class="error-message" id="errorMessage"></div>
+                
+                <div id="singleResult" style="display: none;">
+                    <div class="result-card">
+                        <div class="result-header">
+                            <div class="result-title">匹配度分析结果</div>
+                            <div class="score-badge" id="singleScore">0%</div>
+                        </div>
+                        
+                        <div class="score-details">
+                            <div class="score-item">
+                                <div class="score-value" id="singleSimilarity">0%</div>
+                                <div class="score-label">TF-IDF相似度</div>
+                            </div>
+                            <div class="score-item">
+                                <div class="score-value" id="singleKeywordMatch">0%</div>
+                                <div class="score-label">关键词匹配度</div>
+                            </div>
+                        </div>
+                        
+                        <div class="keywords-section">
+                            <div class="keywords-title">简历关键词：</div>
+                            <div class="keywords-list" id="singleResumeKeywords"></div>
+                        </div>
+                        
+                        <div class="keywords-section">
+                            <div class="keywords-title">职位关键词：</div>
+                            <div class="keywords-list" id="singleJobKeywords"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="multipleResults" style="display: none;">
+                    <div class="result-card">
+                        <div class="result-header">
+                            <div class="result-title">简历筛选排名</div>
+                        </div>
+                        
+                        <div class="ranking-list" id="rankingList"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 简单的中文停用词
+        const stopwords = new Set(['的', '了', '在', '是', '我', '有', '和', '就', '不', '人', '都', '一', '一个', '上', '也', '很', '到', '说', '要', '去', '你', '会', '着', '没有', '看', '好', '自己', '这', '他', '她', '它', '们', '那', '些', '什么', '怎么', '为什么', '哪里', '谁', '多少', '几个', '每', '各', '某', '本', '该', '其', '之', '与', '及', '或', '但', '而', '因为', '所以', '如果', '虽然', '但是', '还是', '已经', '可以', '应该', '能够', '需要', '必须', '可能', '也许', '大概', '一定', '肯定', '当然', '确实', '真的', '其实', '实际上', '基本上', '主要', '重要', '关键', '核心', '重点', '主要', '首先', '其次', '然后', '接着', '最后', '总之', '综上', '例如', '比如', '譬如', '像', '如', '如下', '以上', '以下', '前面', '后面', '左边', '右边', '上面', '下面', '里面', '外面', '中间', '之间', '期间', '时候', '时间', '地点', '位置', '方面', '部分', '全部', '所有', '任何', '一些', '有些', '很多', '大量', '少量', '一点', '稍微', '比较', '非常', '特别', '尤其', '格外', '十分', '极其', '最', '更', '越', '较', '略', '稍', '颇', '极', '很', '太', '非常', '特别', '十分', '极其', '格外', '分外', '万分', '十分', '百分', '千分', '万分', '亿分', '兆分', '京分', '垓分', '秭分', '穰分', '沟分', '涧分', '正分', '载分', '极分', '恒河沙分', '阿僧祗分', '那由他分', '不可思议分', '无量分', '大数分']);
+        
+        // 简单的分词函数（按标点和空格分割）
+        function simpleTokenize(text) {
+            // 移除标点符号，保留中文、英文、数字
+            text = text.replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g, ' ');
+            
+            // 按空格分割
+            let tokens = text.split(/\s+/);
+            
+            // 过滤短词和停用词
+            tokens = tokens.filter(token => {
+                return token.length > 1 && !stopwords.has(token);
+            });
+            
+            return tokens;
+        }
+        
+        // 计算词频(TF)
+        function calculateTF(tokens) {
+            const tf = {};
+            const total = tokens.length;
+            
+            tokens.forEach(token => {
+                tf[token] = (tf[token] || 0) + 1;
+            });
+            
+            // 归一化
+            Object.keys(tf).forEach(key => {
+                tf[key] = tf[key] / total;
+            });
+            
+            return tf;
+        }
+        
+        // 计算TF-IDF
+        function calculateTFIDF(documents) {
+            const tfList = documents.map(doc => calculateTF(doc));
+            
+            // 计算文档频率(DF)
+            const df = {};
+            tfList.forEach(tf => {
+                Object.keys(tf).forEach(word => {
+                    df[word] = (df[word] || 0) + 1;
+                });
+            });
+            
+            // 计算逆文档频率(IDF)
+            const numDocs = documents.length;
+            const idf = {};
+            Object.keys(df).forEach(word => {
+                idf[word] = Math.log(numDocs / (df[word] + 1)) + 1;
+            });
+            
+            // 计算TF-IDF
+            const tfidfList = tfList.map(tf => {
+                const tfidf = {};
+                Object.keys(tf).forEach(word => {
+                    tfidf[word] = tf[word] * (idf[word] || 0);
+                });
+                return tfidf;
+            });
+            
+            return tfidfList;
+        }
+        
+        // 计算余弦相似度
+        function cosineSimilarity(vec1, vec2) {
+            const commonWords = Object.keys(vec1).filter(word => vec2[word]);
+            
+            if (commonWords.length === 0) return 0;
+            
+            let dotProduct = 0;
+            commonWords.forEach(word => {
+                dotProduct += vec1[word] * vec2[word];
+            });
+            
+            let norm1 = 0;
+            Object.values(vec1).forEach(val => {
+                norm1 += val * val;
+            });
+            norm1 = Math.sqrt(norm1);
+            
+            let norm2 = 0;
+            Object.values(vec2).forEach(val => {
+                norm2 += val * val;
+            });
+            norm2 = Math.sqrt(norm2);
+            
+            if (norm1 === 0 || norm2 === 0) return 0;
+            
+            return dotProduct / (norm1 * norm2);
+        }
+        
+        // 提取关键词
+        function extractKeywords(tokens, topK = 10) {
+            const wordCount = {};
+            tokens.forEach(token => {
+                wordCount[token] = (wordCount[token] || 0) + 1;
+            });
+            
+            // 按词频排序
+            const sorted = Object.entries(wordCount)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, topK);
+            
+            return sorted.map(item => item[0]);
+        }
+        
+        // 计算简历与职位的匹配度
+        function matchResumeToJob(resumeText, jobText) {
+            // 分词
+            const resumeTokens = simpleTokenize(resumeText);
+            const jobTokens = simpleTokenize(jobText);
+            
+            // 计算TF-IDF
+            const tfidfList = calculateTFIDF([resumeTokens, jobTokens]);
+            
+            // 计算余弦相似度
+            const similarity = cosineSimilarity(tfidfList[0], tfidfList[1]);
+            
+            // 提取关键词
+            const resumeKeywords = extractKeywords(resumeTokens);
+            const jobKeywords = extractKeywords(jobTokens);
+            
+            // 计算关键词匹配度
+            const resumeKeywordSet = new Set(resumeKeywords);
+            const jobKeywordSet = new Set(jobKeywords);
+            const keywordOverlap = [...resumeKeywordSet].filter(kw => jobKeywordSet.has(kw)).length;
+            const keywordMatchScore = jobKeywordSet.size > 0 ? keywordOverlap / jobKeywordSet.size : 0;
+            
+            // 综合评分
+            const finalScore = similarity * 0.7 + keywordMatchScore * 0.3;
+            
+            return {
+                similarityScore: similarity,
+                keywordMatchScore: keywordMatchScore,
+                finalScore: finalScore,
+                resumeKeywords: resumeKeywords,
+                jobKeywords: jobKeywords
+            };
+        }
+        
+        // 筛选多个简历
+        function screenMultipleResumes(resumes, jobDescription) {
+            const results = resumes.map((resume, index) => {
+                const result = matchResumeToJob(resume, jobDescription);
+                return {
+                    resumeId: index + 1,
+                    ...result
+                };
+            });
+            
+            // 按最终得分排序
+            results.sort((a, b) => b.finalScore - a.finalScore);
+            
+            return results;
+        }
+        
+        // UI交互函数
+        let resumeCount = 2;
+        
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            
+            if (tab === 'single') {
+                document.querySelector('.tab:first-child').classList.add('active');
+                document.getElementById('singleTab').classList.add('active');
+            } else {
+                document.querySelector('.tab:last-child').classList.add('active');
+                document.getElementById('multipleTab').classList.add('active');
+            }
+        }
+        
+        function addResumeInput() {
+            resumeCount++;
+            const container = document.getElementById('resumeInputs');
+            const newGroup = document.createElement('div');
+            newGroup.className = 'resume-input-group';
+            newGroup.innerHTML = `
+                <div class="resume-label">简历 ${resumeCount}</div>
+                <textarea class="resume-textarea" rows="6" placeholder="请输入简历内容..."></textarea>
+                <button class="btn remove-resume-btn" onclick="removeResumeInput(this)">删除</button>
+            `;
+            container.appendChild(newGroup);
+        }
+        
+        function removeResumeInput(btn) {
+            btn.parentElement.remove();
+            updateResumeLabels();
+        }
+        
+        function updateResumeLabels() {
+            const groups = document.querySelectorAll('.resume-input-group');
+            groups.forEach((group, index) => {
+                group.querySelector('.resume-label').textContent = `简历 ${index + 1}`;
+            });
+            resumeCount = groups.length;
+        }
+        
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 5000);
+        }
+        
+        function analyzeSingle() {
+            const jobDesc = document.getElementById('jobDescription').value.trim();
+            const resume = document.getElementById('singleResume').value.trim();
+            
+            if (!jobDesc || !resume) {
+                showError('请填写职位描述和简历内容');
+                return;
+            }
+            
+            document.getElementById('singleResult').style.display = 'none';
+            document.getElementById('multipleResults').style.display = 'none';
+            
+            const result = matchResumeToJob(resume, jobDesc);
+            
+            document.getElementById('singleScore').textContent = (result.finalScore * 100).toFixed(2) + '%';
+            document.getElementById('singleSimilarity').textContent = (result.similarityScore * 100).toFixed(2) + '%';
+            document.getElementById('singleKeywordMatch').textContent = (result.keywordMatchScore * 100).toFixed(2) + '%';
+            
+            const resumeKeywordsDiv = document.getElementById('singleResumeKeywords');
+            resumeKeywordsDiv.innerHTML = result.resumeKeywords.map(kw => 
+                `<span class="keyword-tag">${kw}</span>`
+            ).join('');
+            
+            const jobKeywordsDiv = document.getElementById('singleJobKeywords');
+            jobKeywordsDiv.innerHTML = result.jobKeywords.map(kw => 
+                `<span class="keyword-tag">${kw}</span>`
+            ).join('');
+            
+            document.getElementById('singleResult').style.display = 'block';
+        }
+        
+        function screenMultiple() {
+            const jobDesc = document.getElementById('jobDescription').value.trim();
+            const textareas = document.querySelectorAll('.resume-textarea');
+            const resumes = Array.from(textareas).map(ta => ta.value.trim()).filter(v => v);
+            
+            if (!jobDesc) {
+                showError('请填写职位描述');
+                return;
+            }
+            
+            if (resumes.length < 2) {
+                showError('请至少提供2份简历');
+                return;
+            }
+            
+            document.getElementById('singleResult').style.display = 'none';
+            document.getElementById('multipleResults').style.display = 'none';
+            
+            const results = screenMultipleResumes(resumes, jobDesc);
+            
+            const rankingList = document.getElementById('rankingList');
+            rankingList.innerHTML = results.map((result, index) => `
+                <div class="ranking-item">
+                    <div class="rank-number">${index + 1}</div>
+                    <div class="rank-info">
+                        <div class="rank-title">简历 ${result.resumeId}</div>
+                        <div class="rank-score">综合得分：${(result.finalScore * 100).toFixed(2)}%</div>
+                    </div>
+                </div>
+            `).join('');
+            
+            document.getElementById('multipleResults').style.display = 'block';
+        }
+        
+        // 页面加载时显示示例
+        window.onload = function() {
+            document.getElementById('jobDescription').value = `职位：Python开发工程师
+要求：
+1. 熟练掌握Python编程语言
+2. 熟悉Django或Flask框架
+3. 了解MySQL、Redis等数据库
+4. 有良好的代码习惯和文档编写能力
+5. 具备团队协作精神`;
+            
+            document.getElementById('singleResume').value = `个人简历
+姓名：张三
+教育背景：本科，计算机科学与技术专业
+工作经验：
+1. 3年Python开发经验
+2. 熟练使用Django框架开发Web应用
+3. 熟悉MySQL数据库设计和优化
+4. 了解Redis缓存技术
+5. 有良好的编码习惯，注重代码质量`;
+        };
+    </script>
+</body>
+</html>
