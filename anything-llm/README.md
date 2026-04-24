@@ -90,6 +90,7 @@ docker compose up -d --build
   1. 等待几分钟后重试 `docker compose pull`
   2. 检查 Docker Desktop 是否开启了代理或加速器
   3. 使用 `docker system prune -a` 清理缓存后再试
+  4. 如果问题持续，考虑手动安装（见下文）
 
 ## 📚 使用示例
 
@@ -129,6 +130,63 @@ VECTOR_DB=chroma
 - `anything-llm-embeddings`：存储向量索引
 
 如需备份，只需复制对应卷的数据。
+
+## 🐅 故障排除
+
+### Docker 拉取镜像失败（429 Too Many Requests）
+
+如果在拉取镜像时遇到 `429 Too Many Requests` 错误，这通常是由于 Docker 镜像加速器的速率限制造成的。解决方法：
+
+1. **等待速率限制重置**：通常需要等待 1-2 小时后重试。
+2. **修改 Docker 镜像源**：
+   - 打开 Docker Desktop 设置
+   - 导航到 "Resources" > "Docker Engine"
+   - 编辑 `daemon.json` 文件，移除或更换有问题的镜像加速器
+   - 示例配置（使用官方镜像）：
+     ```json
+     {
+       "registry-mirrors": []
+     }
+     ```
+   - 应用更改并重启 Docker Desktop
+3. **使用 VPN 或更换网络**：有时网络限制会导致访问某些镜像站点失败。
+
+### 手动安装 AnythingLLM（非 Docker 方法）
+
+如果 Docker 方法持续失败，可以考虑手动安装：
+
+1. **前提条件**：
+   - Node.js >= 16
+   - Python >= 3.8
+   - Git
+
+2. **获取源代码**：
+   ```bash
+   git clone https://github.com/Mintplex-Labs/anything-llm.git
+   cd anything-llm
+   ```
+
+3. **后端安装**：
+   ```bash
+   cd server
+   pip install -r requirements.txt
+   ```
+
+4. **前端安装**：
+   ```bash
+   cd ../client
+   npm install
+   ```
+
+5. **配置环境变量**：
+   - 复制 `.env.example` 为 `.env`
+   - 根据需要修改配置
+
+6. **启动应用**：
+   - 在一个终端中启动后端：`cd server && python -m server`
+   - 在另一个终端中启动前端：`cd client && npm run dev`
+
+7. 访问 `http://localhost:3000`
 
 ## 🙋‍♂️ 常见问题
 
